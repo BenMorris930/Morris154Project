@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -12,31 +13,66 @@ public class PlayerMovement : MonoBehaviour
     bool canJump = true;
     bool dblJump = true;
     bool isGrounded = true;
+    public static bool goingUp = true;
+    bool inPlatform = false;
+    public GameObject swordObject;
+    Animator swordAnimator;
+
     // Start is called before the first frame update
     void Start()
     {
         animator = GetComponent<Animator>();
         playerRB = GetComponent<Rigidbody2D>();
+        swordAnimator = swordObject.GetComponent<Animator>();
     }
 
     // Update is called once per frame
     void Update()
     {
         horInput = Input.GetAxis("Horizontal");
-
-        if (isGrounded == true) UpdateSwitch();
+        UpdateSwitch();
         animator.SetInteger("animWalkSwitch", horInputSwitch);
-        transform.Translate(horInputSwitch*Time.deltaTime, 0, 0);
-        if (Input.GetKeyDown(KeyCode.Space) && canJump) Jump();
+        transform.Translate(horInput*Time.deltaTime, 0, 0);
+
+        if (Input.GetKeyDown(KeyCode.Mouse0))
+        {
+            SwingSword();
+        }
+
+        if (inPlatform == false) UpdateGoingUp();
+
+
+        if (Input.GetKey(KeyCode.S) && Input.GetKey(KeyCode.Space))
+        {
+            goingUp = true;
+        }
+        else if (Input.GetKeyDown(KeyCode.Space) && canJump)
+        {
+            goingUp = true;
+            Jump();  
+        }
         else if (Input.GetKeyDown(KeyCode.Space) && dblJump)
         {
+            goingUp = true;
             Jump();
             dblJump = false;
         }
         else;
+
+        if (GameManager.canExit == true && Input.GetKeyDown(KeyCode.E)) Debug.Log("YOU WIN");
         
     }
 
+    void SwingSword()
+    {
+        swordAnimator.Play("SwordSwing");
+
+    }
+    void UpdateGoingUp()
+    {
+        if (playerRB.velocity.y <= 0) goingUp = false;
+        else goingUp = true;
+    }
     void UpdateSwitch()
     {
         if (horInput < 0) horInputSwitch = -1;
@@ -62,10 +98,36 @@ public class PlayerMovement : MonoBehaviour
         canJump = true;
         dblJump = true;
         isGrounded = true;
+
+        
     }
 
     private void OnCollisionExit2D(Collision2D collision)
     {
         isGrounded = false;
+        
     }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.CompareTag("Goal")) GameManager.canExit = true;
+        if (collision.gameObject.CompareTag("Platform"))
+        {
+            inPlatform = true;
+
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.gameObject.CompareTag("Goal")) GameManager.canExit = false;
+        if (collision.gameObject.CompareTag("Platform"))
+        {
+            inPlatform = false;
+
+        }
+    }
+
+
+
 }
