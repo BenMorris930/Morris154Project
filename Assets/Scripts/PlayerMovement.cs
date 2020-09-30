@@ -17,6 +17,7 @@ public class PlayerMovement : MonoBehaviour
     bool inPlatform = false;
     public GameObject swordObject;
     Animator swordAnimator;
+    BoxCollider2D swordHitbox;
 
     // Start is called before the first frame update
     void Start()
@@ -24,6 +25,7 @@ public class PlayerMovement : MonoBehaviour
         animator = GetComponent<Animator>();
         playerRB = GetComponent<Rigidbody2D>();
         swordAnimator = swordObject.GetComponent<Animator>();
+        swordHitbox = swordObject.GetComponent<BoxCollider2D>();
     }
 
     // Update is called once per frame
@@ -59,7 +61,7 @@ public class PlayerMovement : MonoBehaviour
         }
         else;
 
-        if (GameManager.canExit == true && Input.GetKeyDown(KeyCode.E)) Debug.Log("YOU WIN");
+        if (GameManager.canExit == true && Input.GetKeyDown(KeyCode.E) && GameManager.enemyCount == 0) Debug.Log("YOU WIN");
         
     }
 
