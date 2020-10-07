@@ -5,7 +5,10 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Pixel environment and TileMap/Scene/Scene.unity
     guid: 62b78e09673277242b465028ce91b80b
+  - enabled: 1
+    path: Assets/Level1.unity
+    guid: f836c23abe3557a45b1edfca28262a58
   m_configObjects: {}

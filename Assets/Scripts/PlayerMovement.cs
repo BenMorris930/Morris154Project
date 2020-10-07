@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -15,17 +17,28 @@ public class PlayerMovement : MonoBehaviour
     bool isGrounded = true;
     public static bool goingUp = true;
     bool inPlatform = false;
-    public GameObject swordObject;
+    public GameObject rightSword;
+    public GameObject leftSword;
     Animator swordAnimator;
     BoxCollider2D swordHitbox;
+    Animator leftswordAnimator;
+    BoxCollider2D leftswordHitbox;
+    SpriteRenderer spriteRenderer;
+    public static bool turnedLeft = false;
+    public GameObject winText;
+    public GameObject restartText;
+    bool gameOver = false;
 
     // Start is called before the first frame update
     void Start()
     {
         animator = GetComponent<Animator>();
         playerRB = GetComponent<Rigidbody2D>();
-        swordAnimator = swordObject.GetComponent<Animator>();
-        swordHitbox = swordObject.GetComponent<BoxCollider2D>();
+        swordAnimator = rightSword.GetComponent<Animator>();
+        swordHitbox = rightSword.GetComponent<BoxCollider2D>();
+        leftswordAnimator = leftSword.GetComponent<Animator>();
+        leftswordHitbox = leftSword.GetComponent<BoxCollider2D>();
+        spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
     }
 
     // Update is called once per frame
@@ -34,12 +47,32 @@ public class PlayerMovement : MonoBehaviour
         horInput = Input.GetAxis("Horizontal");
         UpdateSwitch();
         animator.SetInteger("animWalkSwitch", horInputSwitch);
-        transform.Translate(horInput*Time.deltaTime, 0, 0);
+        if (!gameOver) transform.Translate(horInput*Time.deltaTime, 0, 0);
 
-        if (Input.GetKeyDown(KeyCode.Mouse0))
+        if (horInput < 0 && !gameOver)
+        {
+            spriteRenderer.flipX = true;
+            leftSword.transform.eulerAngles = new Vector3(0, 0, 120);
+            leftSword.SetActive(true);
+            rightSword.SetActive(false);
+            turnedLeft = true;
+        }
+        else if (horInput > 0 && !gameOver)
+        {
+            spriteRenderer.flipX = false;
+            leftSword.SetActive(false);
+            rightSword.transform.eulerAngles = new Vector3(0, 0, 60);
+            rightSword.SetActive(true);
+            turnedLeft = false;
+        }
+        else;
+
+        if (Input.GetKeyDown(KeyCode.Mouse0) && !gameOver)
         {
             SwingSword();
         }
+
+        if (gameOver && Input.GetKeyDown(KeyCode.R)) SceneManager.LoadScene("Level1");
 
         if (inPlatform == false) UpdateGoingUp();
 
@@ -61,13 +94,19 @@ public class PlayerMovement : MonoBehaviour
         }
         else;
 
-        if (GameManager.canExit == true && Input.GetKeyDown(KeyCode.E) && GameManager.enemyCount == 0) Debug.Log("YOU WIN");
+        if (GameManager.canExit == true && Input.GetKeyDown(KeyCode.E) && GameManager.enemyCount == 0)
+        {
+            winText.SetActive(true);
+            restartText.SetActive(true);
+            gameOver = true;
+        }
         
     }
 
     void SwingSword()
     {
-        swordAnimator.Play("SwordSwing");
+        if (turnedLeft == false) swordAnimator.Play("SwordSwing");
+        else leftswordAnimator.Play("SwordSwingLeft");
 
     }
     void UpdateGoingUp()

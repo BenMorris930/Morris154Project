@@ -21,6 +21,7 @@ public class SwordScript : MonoBehaviour
         if (collision.CompareTag("Enemy"))
         {
             collision.gameObject.SetActive(false);
+            //Destroy(collision.gameObject);
         }
     }
 }
